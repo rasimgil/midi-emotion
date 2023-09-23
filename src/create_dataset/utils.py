@@ -14,8 +14,8 @@ https://developer.spotify.com/dashboard/applications
 Then, fill in the variables client_id and client_secret
 """
 
-client_id = ''
-client_secret = ''
+client_id = '3ebf4c788f8148a2af16f1914104b489'
+client_secret = '926ed96e6dbb4c838ae31d259babdbfe'
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
@@ -210,7 +210,7 @@ def get_spotify_ids(json_path):
     return spotify_ids
 
 def read_csv(input_file_path, delimiter=","):
-    with open(input_file_path, "r") as f_in:
+    with open(input_file_path, "r", encoding="latin-1") as f_in:
         reader = csv.DictReader(f_in, delimiter=delimiter)
         data = [{key: value for key, value in row.items()} for row in reader]
     return data

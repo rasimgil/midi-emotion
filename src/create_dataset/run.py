@@ -70,11 +70,12 @@ if os.path.exists(output_path) and not redo:
 else:
     h5_msd = hdf5_getters.open_h5_file_read(msd_summary_path)
     n_msd = hdf5_getters.get_num_songs(h5_msd)
+    n_msd_sample = 20
 
     trackid_to_songid = {}
     print("Adding metadata to each track in Lakh dataset")
 
-    for i in tqdm(range(n_msd)):
+    for i in tqdm(range(n_msd_sample)):
         track_id = hdf5_getters.get_track_id(h5_msd, i).decode("utf-8")
         if track_id in track_ids:
             # get data from MSD
@@ -136,7 +137,7 @@ else:
         data_to_process = {key: value for key, value in data_to_process.items() if key not in track_ids_already_processed}
         write_header = False
 
-    with open(output_path_incomplete, "a") as f_out:
+    with open(output_path_incomplete, "a", encoding="utf-8-sig") as f_out:
         csv_writer = csv.DictWriter(f_out, fieldnames=fieldnames)
         if write_header:
             csv_writer.writeheader()

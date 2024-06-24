@@ -10,8 +10,8 @@ You can create a non-trained target model buy running:
 python train.py --log_step 1 --max_step 1 ...
 """
 
-trained_model_dir = "20220803-130921"
-new_model_dir = "20220803-131016"
+trained_model_dir = "20240429-165524"
+new_model_dir = "20240304-211825"
 
 device = "cuda" if torch.cuda.is_available() else 'cpu'
 

@@ -47,7 +47,6 @@ class Loader:
 
         data_files = os.listdir(self.data_folder)
         self.data = [sample for sample in self.data if sample["file"] + '.pt' in data_files]
-
         maps_file = os.path.join(os.path.abspath(data_folder + "/.."), "maps.pt")
         self.maps = torch.load(maps_file)
 
@@ -66,7 +65,6 @@ class Loader:
 
         if self.regression and self.use_cls_token:
             extra_tokens.append(self.cls_token)
-
         if extra_tokens != []:
             # add to maps
             maps_list = list(self.maps["idx2tuple"].values())

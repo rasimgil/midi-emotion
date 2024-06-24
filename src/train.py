@@ -16,7 +16,7 @@ from data.loader_exhaustive import LoaderExhaustive
 from data.loader_generations import LoaderGenerations
 from data.collate import filter_collate
 from utils import CsvWriter, create_exp_dir, accuracy
-from config import args
+from configs.config1 import args
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 

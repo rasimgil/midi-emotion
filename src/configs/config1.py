@@ -10,15 +10,15 @@ parser.add_argument("--conditioning", type=str, required=False, default="continu
 parser.add_argument("--data_folder", type=str, default="../data_files/lpd_5/lpd_5_full_transposable")
 parser.add_argument('--full_dataset', action="store_true",
                     help='Use LPD-full dataset')
-parser.add_argument('--n_layer', type=int, default=20,
+parser.add_argument('--n_layer', type=int, default=20 // 5,
                     help='number of total layers')
-parser.add_argument('--n_head', type=int, default=16,
+parser.add_argument('--n_head', type=int, default=16 // 5,
                     help='number of heads')
-parser.add_argument('--d_model', type=int, default=768,
+parser.add_argument('--d_model', type=int, default=768 // 5,
                     help='model dimension')
-parser.add_argument('--d_condition', type=int, default=192,
+parser.add_argument('--d_condition', type=int, default=192 // 4,
                     help='condition dimension (if continuous_concat is used)')
-parser.add_argument('--d_inner', type=int, default=768*4,
+parser.add_argument('--d_inner', type=int, default=768 // 3,
                     help='inner dimension in FF')
 parser.add_argument('--tgt_len', type=int, default=1216, 
                     help='number of tokens to predict')
@@ -82,7 +82,7 @@ parser.add_argument('--restart_dir', type=str, default=None,
                     help='restart dir')
 parser.add_argument('--debug', action='store_true',
                     help='run in debug mode (do not create exp dir)')
-parser.add_argument('--max_step', type=int, default=1000000000,
+parser.add_argument('--max_step', type=int, default=100_000,
                     help='maximum training steps')
 parser.add_argument('--overfit', action='store_true',
                     help='Works on a single sample')

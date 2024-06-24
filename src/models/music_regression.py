@@ -37,6 +37,7 @@ class MusicRegression(torch.nn.Module):
                  d_condition=-1, no_mask=True
                  ):
         super().__init__()
+        d_condition = -1
 
         assert d_condition <= 0
 
@@ -73,7 +74,7 @@ class MusicRegression(torch.nn.Module):
         self.embedding.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, x):
-
+        
         mask = None if self.no_mask else generate_mask(x, self.pad_token)
         # embed input
         x = self.embedding(x)  # (batch_size, input_seq_len, d_model)

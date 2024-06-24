@@ -1,32 +1,40 @@
 from glob import glob
 import os
-from tkinter import TRUE
 import torch
 import sys
+
 sys.path.append("..")
 
 """
 Data loader to perform regression on a folder with generations
 """
 
+
 class LoaderGenerations:
-
-    def __init__(self, gen_folder, seq_len, pad=True, use_start_token=True, use_end_token=False, 
-                use_cls_token=TRUE, overlap=0.5):
-
+    def __init__(
+        self,
+        gen_folder,
+        seq_len,
+        pad=True,
+        use_start_token=True,
+        use_end_token=False,
+        use_cls_token=True,
+        overlap=0.5,
+    ):
         self.seq_len = seq_len
         self.one_sample = None
 
         self.pad = pad
 
-        self.pad_token = '<PAD>' if pad else None
-        self.start_token = '<START>' if use_start_token else None
-        self.end_token = '<END>' if use_end_token else None
+        self.pad_token = "<PAD>" if pad else None
+        self.start_token = "<START>" if use_start_token else None
+        self.end_token = "<END>" if use_end_token else None
         self.cls_token = "<CLS>" if use_cls_token else None
 
         data_paths = glob(os.path.join("../output", gen_folder, "*.pt"), recursive=True)
+        print(data_paths)
 
-        maps = torch.load("../datasets/lpd_5/w_emotion_transposable/maps.pt")
+        maps = torch.load("../data_files/lpd_5/maps.pt")
         n_vocab = len(maps["tuple2idx"])
 
         self.data = []
@@ -38,16 +46,17 @@ class LoaderGenerations:
                 maps["tuple2idx"][self.cls_token] = len(maps["idx2tuple"])
                 maps["idx2tuple"][len(maps["idx2tuple"])] = self.cls_token
             # prepend <CLS> token
-            cls_idx = torch.ShortTensor(
-                [maps["tuple2idx"][self.cls_token]])
+            cls_idx = torch.ShortTensor([maps["tuple2idx"][self.cls_token]])
 
         for data_path in data_paths:
+            print(data_path)
             generation = torch.load(data_path)
+            print(generation.keys())
             inds = generation["inds"]
             # remove special tokens
-            inds = inds[inds < n_vocab]              
+            inds = inds[inds < n_vocab]
             # split with overlap
-            inds = inds.unfold(0, seq_len, int(seq_len*(1-overlap)))
+            inds = inds.unfold(0, seq_len, int(seq_len * (1 - overlap)))
             inds = list(torch.split(inds, 1, dim=0))
             inds = [sample.squeeze() for sample in inds]
 
@@ -59,15 +68,7 @@ class LoaderGenerations:
                 inds.pop()
             self.data += [(sample, condition) for sample in inds]
 
-
-        self.discrete2continuous = {
-            "-2": -0.8,
-            "-1": -0.4,
-            "0": 0,
-            "1": 0.4,
-            "2": 0.8
-        }
-
+        self.discrete2continuous = {"-2": -0.8, "-1": -0.4, "0": 0, "1": 0.4, "2": 0.8}
 
     def get_vocab_len(self):
         return None
@@ -82,7 +83,6 @@ class LoaderGenerations:
         return len(self.data)
 
     def __getitem__(self, idx):
-
         input_, condition = self.data[idx]
         if input_.size(0) != self.seq_len:
             Warning(f"Input length is {input_.size(0)}")
@@ -96,12 +96,3 @@ class LoaderGenerations:
         input_ = input_.cpu()
         condition = condition.cpu()
         return input_, condition, None
-
-
-        
-
-        
-
-
-
-

@@ -31,23 +31,27 @@ def tuples_to_mid(x, idx2event, verbose=False):
 
     time_cursor = 0
     for el in x:
+        # print(el)
         if el[0] != "<":     # if not special token
-            event = idx2event[el[0]]       
+            event = idx2event[el[0]]
             if "TIMESHIFT" == event:
                 timeshift = float(el[1])
                 time_cursor += timeshift / 1000.0
             else:
                 on_off, instrument = event.split("_")
                 pitch = int(el[1])
+                # print(on_off, instrument, pitch)
                 if on_off == "ON":
                     active_notes.update({(instrument, pitch): time_cursor})
                 elif (instrument, pitch) in active_notes:
                     start = active_notes[(instrument, pitch)]
                     end = time_cursor
-                    tracks[instrument].notes.append(pretty_midi.Note(velocities[instrument], pitch, start, end))
-                elif verbose:  
-                    print("Ignoring {:>15s} {:4} because there was no previos ""ON"" event".format(event, pitch))
-
+                    note = pretty_midi.Note(velocities[instrument], pitch, start, end)  
+                    # print(note)  
+                    tracks[instrument].notes.append(note)
+                elif verbose:
+                    print("Ignoring {:>15s} {:4} because there was no previous ""ON"" event".format(event, pitch))
+    # print(tracks)
     mid = pretty_midi.PrettyMIDI()
     mid.instruments += tracks.values()
     return mid

@@ -29,10 +29,10 @@ def generate(
     penalty_coeff=0.5,
     discrete_conditions=None,
     continuous_conditions=None,
-    max_input_len=1024,
+    max_input_len=2**10,
     amp=True,
     step=None,
-    gen_len=1024,
+    gen_len=2048,
     temperatures=[1.2, 1.2],
     top_k=-1,
     top_p=0.7,
@@ -42,6 +42,7 @@ def generate(
     verbose=False,
     primers=[["<START>"]],
     min_n_instruments=2,
+    multi_gen=False
 ):
     if not debug:
         os.makedirs(out_dir, exist_ok=True)
@@ -83,15 +84,29 @@ def generate(
 
     # will have generated symbols and indices
     gen_song_tensor = torch.LongTensor([]).to(device)
-
     if not isinstance(primers, list):
         primers = [[primers]]
-    primer_inds = [
-        [maps["tuple2idx"][symbol] for symbol in primer] for primer in primers
-    ]
-
+    primer_inds = []
+    for primer in primers:
+        for symbol in primer:
+            if symbol == "<START>":
+                primer_inds.append(maps["tuple2idx"][symbol])
+            else:
+                primer_inds.append(maps["tuple2idx"]["<START>"])
+                x = symbol.split("_")
+                if x[0] == "TIMESHIFT":
+                    event = x[0]
+                    time_cursor = int(x[1])
+                    please = (maps["event2idx"][event], int(time_cursor))
+                    primer_inds.append(maps["tuple2idx"][please])
+                else:
+                    x = symbol.split("_")
+                    event = "_".join(x[:2])
+                    pitch = x[-1]
+                    please = (maps["event2idx"][event], int(pitch))
+                    primer_inds.append(maps["tuple2idx"][please])
+    # primer_inds = [[maps["tuple2idx"][symbol] for symbol in primer] for primer in primers]
     gen_inds = torch.LongTensor(primer_inds)
-
     null_conditions_tensor = torch.FloatTensor([np.nan, np.nan]).to(device)
 
     if len(primers) == 1:
@@ -221,10 +236,10 @@ def generate(
                     repeat_counts[j] = repeat_counts[j] // 2
 
         # Convert to midi and save
-
         # If there are less than n instruments, repeat generation for specific condition
         redo_primers, redo_discrete_conditions, redo_continuous_conditions = [], [], []
-        for i in range(gen_song_tensor.size(-1)):
+        # tempTemp = gen_song_tensor.size(-1)
+        for i in range(1):
             if short_filename:
                 out_file_path = f"{i}"
             else:
@@ -238,7 +253,7 @@ def generate(
 
             if seed > 0:
                 out_file_path += f"_s{seed}"
-            #! HERE
+
             if continuous_conditions is not None:
                 condition = continuous_conditions[i, :].tolist()
                 # convert to string
@@ -251,8 +266,8 @@ def generate(
             symbols = ind_tensor_to_str(
                 gen_song_tensor[:, i], maps["idx2tuple"], maps["idx2event"]
             )
+            end = symbols[-32:]
             n_instruments = get_n_instruments(symbols)
-
             if verbose:
                 print("")
             if n_instruments >= min_n_instruments:
@@ -266,7 +281,6 @@ def generate(
                 out_path_txt = os.path.join(out_dir, out_path_txt)
                 out_path_inds = "inds_" + out_file_path.replace(".mid", ".pt")
                 out_path_inds = os.path.join(out_dir, out_path_inds)
-                
 
                 if not debug:
                     mid.write(out_path_mid)
@@ -289,7 +303,7 @@ def generate(
                     )
                     redo_primers = primers
 
-    return redo_primers, redo_discrete_conditions, redo_continuous_conditions
+    return redo_primers, redo_discrete_conditions, redo_continuous_conditions, end
 
 
 if __name__ == "__main__":
@@ -305,8 +319,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--no_cuda", action="store_true", help="Use CPU")
     parser.add_argument("--num_runs", type=int, help="Number of runs", default=1)
-    parser.add_argument("--gen_len", type=int, help="Max generation len", default=4096)
-    parser.add_argument("--max_input_len", type=int, help="Max input len", default=1216)
+    parser.add_argument("--gen_len", type=int, help="Max generation len", default=256)
+    parser.add_argument("--max_input_len", type=int, help="Max input len", default=2**8)
     parser.add_argument(
         "--temp",
         type=float,
@@ -317,7 +331,7 @@ if __name__ == "__main__":
     parser.add_argument("--topk", type=int, help="Top-k sampling", default=-1)
     parser.add_argument("--topp", type=float, help="Top-p sampling", default=0.7)
     parser.add_argument("--debug", action="store_true", help="Do not save anything")
-    parser.add_argument("--seed", type=int, default=0, help="Random seed")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument(
         "--no_amp", action="store_true", help="Disable automatic mixed precision"
     )
@@ -356,6 +370,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--batch_gen_dir", type=str, default="")
     parser.add_argument("--save_dir", type=str)
+    parser.add_argument("--repeats", type=int)
     args = parser.parse_args()
 
     assert len(args.valence) == len(
@@ -372,8 +387,9 @@ if __name__ == "__main__":
     main_output_dir = "../output"
     assert os.path.exists(os.path.join(main_output_dir, args.model_dir))
     midi_output_dir = os.path.join(
-        # main_output_dir, args.model_dir, "generations", args.save_dir
-        main_output_dir, args.model_dir, "generations", "inference"
+        # main_output_dir, args.model_dir, "generations", "survey", args.save_dir
+        # main_output_dir, args.model_dir, "generations", "inference"
+        main_output_dir, args.model_dir, "generations", "radio"
     )
 
     new_dir = ""
@@ -473,16 +489,44 @@ if __name__ == "__main__":
         primers = [["<START>"]]
         discrete_conditions = None
 
-    for i in range(args.num_runs):
-        primers_run = deepcopy(primers)
-        discrete_conditions_run = deepcopy(discrete_conditions)
-        continuous_conditions_run = deepcopy(continuous_conditions)
-        while not (
-            primers_run == []
-            or discrete_conditions_run == []
-            or continuous_conditions_run == []
-        ):
-            primers_run, discrete_conditions_run, continuous_conditions_run = generate(
+    primer = ["<START>"]
+    primers_run = deepcopy(primers)
+    discrete_conditions_run = deepcopy(discrete_conditions)
+    continuous_conditions_run = deepcopy(continuous_conditions)
+    while not (
+        primers_run == []
+        or discrete_conditions_run == []
+        or continuous_conditions_run == []
+    ):
+        primers_run, discrete_conditions_run, continuous_conditions_run, ending = generate(
+            model,
+            maps,
+            device,
+            midi_output_dir,
+            args.conditioning,
+            discrete_conditions=discrete_conditions_run,
+            min_n_instruments=args.min_n_instruments,
+            continuous_conditions=continuous_conditions_run,
+            penalty_coeff=args.penalty_coeff,
+            short_filename=args.short_filename,
+            top_p=args.topp,
+            gen_len=2**9,
+            max_input_len=64,
+            amp=not args.no_amp,
+            primers=primers_run,
+            temperatures=args.temp,
+            top_k=args.topk,
+            debug=args.debug,
+            verbose=not args.quiet,
+            seed=args.seed,
+            multi_gen=False
+        )
+        # for i in range(args.repeats):
+        while True:
+            primers_run = deepcopy(primers)
+            discrete_conditions_run = deepcopy(discrete_conditions)
+            continuous_conditions_run = deepcopy(continuous_conditions)
+            primers_run, discrete_conditions_run, continuous_conditions_run, x = generate(
                 model,
                 maps,
                 device,
@@ -495,12 +539,13 @@ if __name__ == "__main__":
                 short_filename=args.short_filename,
                 top_p=args.topp,
                 gen_len=2**9,
-                max_input_len=args.max_input_len,
+                max_input_len=64,
                 amp=not args.no_amp,
-                primers=primers_run,
+                primers=[ending],
                 temperatures=args.temp,
                 top_k=args.topk,
                 debug=args.debug,
                 verbose=not args.quiet,
                 seed=args.seed,
             )
+            ending = x

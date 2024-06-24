@@ -1,6 +1,25 @@
 import pandas as pd
 import numpy as np
 
+
+def get_quadrant(a, v):
+    if a >= 0:
+        # hi
+        if v >= 0:
+            # hi
+            return "Q1"
+        else:
+            # lo
+            return "Q2"
+    else:
+        # lo
+        if v >= 0:
+            # hi
+            return "Q4"
+        # lo
+        return "Q3"
+        
+
 def preprocess_features(feature_file, n_bins=None, min_n_instruments=3, 
         test_ratio=0.05, outlier_range=1.5, conditional=True,
         use_labeled_only=True):
@@ -10,7 +29,6 @@ def preprocess_features(feature_file, n_bins=None, min_n_instruments=3,
     mapper = {"valence": "valence", "note_density_per_instrument": "arousal"}
     data = data.rename(columns=mapper)
     columns = data.columns.to_list()
-
     # filter out ones with less instruments
     data = data[data["n_instruments"] >= min_n_instruments]
     # filter out ones with zero valence
@@ -70,10 +88,19 @@ def preprocess_features(feature_file, n_bins=None, min_n_instruments=3,
     matched = data[data["is_matched"]]
     unmatched = data[~data["is_matched"]]
 
+    # matched['quadrant'] = matched.apply(lambda row: get_quadrant(row['arousal'], row['valence']), axis=1)
+    # matched = matched.dropna(subset=['quadrant'])
+    # result_df = matched[['file', 'quadrant']].rename(columns={'file': 'fname', 'quadrant': 'label'})
+    # result_df.to_csv('filename_quadrant.csv', index=False)
+
     # reserve a portion of matched data for testing
     matched = matched.sort_values("file")
     matched = matched.reset_index(drop=True)
     n_test_samples = round(len(matched) * test_ratio)
+
+
+    Q1, Q2, Q3, Q4 = [], [], [], []
+    
 
     test_split = matched.loc[len(matched)-n_test_samples:len(matched)]
 
@@ -84,6 +111,7 @@ def preprocess_features(feature_file, n_bins=None, min_n_instruments=3,
         train_split = train_split.sort_values("file").reset_index(drop=True)
 
     splits = [train_split, test_split]
+
 
     # summarize
     columns_to_drop = [col for col in columns if col not in ["file", "valence", "arousal"]]

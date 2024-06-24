@@ -15,15 +15,15 @@ To create the Lakh-Spotify dataset:
 
 - Download the datasets:
 
-Lakh pianoroll 5 full dataset
-https://drive.google.com/uc?id=1tZKMhYazSWapFTUt7H6abHSo-QKH9ATC
+[Lakh pianoroll 5 full dataset](https://ucsdcloud-my.sharepoint.com/personal/h3dong_ucsd_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fh3dong%5Fucsd%5Fedu%2FDocuments%2Fdata%2Flpd%2Flpd%5F5%2Flpd%5F5%5Ffull%2Etar%2Egz&parent=%2Fpersonal%2Fh3dong%5Fucsd%5Fedu%2FDocuments%2Fdata%2Flpd%2Flpd%5F5&ga=1)
 
 MSD summary file
 http://labrosa.ee.columbia.edu/millionsong/sites/default/files/AdditionalFiles/msd_summary_file.h5
 
 Echonest mapping dataset
 ```ftp://ftp.acousticbrainz.org/pub/acousticbrainz/acousticbrainz-labs/download/msdrosetta/millionsongdataset_echonest.tar.bz2```
-Alternatively: https://drive.google.com/file/d/1AZctGV7WysvsAaDCPWM1GVBvgaFz2Dys/view?usp=sharing
+Alternatively: https://drive.google.com/file/d/17Exfxjtq7bI9EKtEZlOrBCkx8RBx7h77/view?usp=sharing
+
 
 Lakh-MSD matching scores file
 http://hog.ee.columbia.edu/craffel/lmd/match_scores.json
@@ -44,7 +44,7 @@ To preprocess and create the training dataset:
 To generate MIDI using pretrained models:
 
 - Download model(s) from the following link:
-https://drive.google.com/drive/folders/1qFgomRDXmx8ewRz_E0X2T10CY-w_kUFt?usp=sharing
+https://drive.google.com/drive/folders/1R5-HaXmNzXBAhGq1idrDF-YEKkZm5C8C?usp=sharing
 
 - Extract into the folder ```output```
 

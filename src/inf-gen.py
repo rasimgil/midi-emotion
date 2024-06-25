@@ -12,6 +12,7 @@ from data.data_processing_reverse import ind_tensor_to_mid, ind_tensor_to_str
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
@@ -384,7 +385,8 @@ if __name__ == "__main__":
         torch.manual_seed(args.seed)
         torch.cuda.manual_seed(args.seed)
 
-    main_output_dir = "../output"
+    main_output_dir = os.path.join(root_dir, 'midi-emotion', 'output')
+    midi_output_dir = os.path.join(main_output_dir, args.model_dir, "generations", "radio")
     assert os.path.exists(os.path.join(main_output_dir, args.model_dir))
     midi_output_dir = os.path.join(
         # main_output_dir, args.model_dir, "generations", "survey", args.save_dir

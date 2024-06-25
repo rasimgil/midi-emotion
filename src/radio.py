@@ -7,6 +7,8 @@ import mido
 from argparse import ArgumentParser
 import threading
 
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
 class Player:
     def play(self, file, outport):
         while True:
@@ -46,14 +48,20 @@ def start_watcher(directory, player, outport):
     observer.join()
 
 def generate_midi(model_dir, arousal, valence):
+    inf_gen_script = os.path.join(root_dir, 'midi-emotion', 'src', 'inf-gen.py')
+    main_output_dir = os.path.join(root_dir, 'midi-emotion', 'output')
+    midi_output_dir = os.path.join(main_output_dir, model_dir, "generations", "radio")
+    
+    assert os.path.exists(os.path.join(main_output_dir, model_dir))
+
     command = [
-        'python', 'inf-gen.py', 
-        '--model_dir', model_dir, 
-        '--conditioning', 'continuous_concat', 
-        '--arousal', str(arousal), 
+        'python', inf_gen_script,
+        '--model_dir', model_dir,
+        '--conditioning', 'continuous_concat',
+        '--arousal', str(arousal),
         '--valence', str(valence)
     ]
-    return subprocess.Popen(command)
+    return subprocess.Popen(command, cwd=midi_output_dir)
 
 def open_timidity_port():
     subprocess.Popen(['timidity', '-iA'])
@@ -65,11 +73,9 @@ if __name__ == "__main__":
     parser.add_argument("--model_dir", type=str, help="Directory with model", required=True)
     args = parser.parse_args()
 
-    main_output_dir = "../output"
+    main_output_dir = os.path.join(root_dir, 'midi-emotion', 'output')
     midi_output_dir = os.path.join(main_output_dir, args.model_dir, "generations", "radio")
-
-    assert os.path.exists(os.path.join(main_output_dir, args.model_dir))
-
+    
     open_timidity_port()
     time.sleep(1)
     

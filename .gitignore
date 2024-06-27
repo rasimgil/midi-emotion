@@ -2,5 +2,6 @@ __pycache__
 .vscode
 data_files/*
 output/*
+!output/*/*.prof
 !.gitkeep
 .cache

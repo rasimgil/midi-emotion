@@ -332,7 +332,7 @@ if __name__ == "__main__":
     parser.add_argument("--topk", type=int, help="Top-k sampling", default=-1)
     parser.add_argument("--topp", type=float, help="Top-p sampling", default=0.7)
     parser.add_argument("--debug", action="store_true", help="Do not save anything")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--seed", type=int, default=-1, help="Random seed")
     parser.add_argument(
         "--no_amp", action="store_true", help="Disable automatic mixed precision"
     )

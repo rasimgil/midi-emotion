@@ -94,7 +94,7 @@ def plot_time_vs_params(model_names, params_dict, time_dict, save_dir="./plots")
     plt.figure(figsize=(10, 6))
     plt.scatter(sizes, times)
     for i, size in enumerate(sizes):
-        plt.annotate(model_names[i], (size, times[i]), textcoords="offset points", xytext=(0,5), ha='center')
+        plt.annotate(model_names[i], (size, times[i]), textcoords="offset points", xytext=(0,5), ha="center")
 
     plt.xlabel("Number of Parameters (Millions)")
     plt.ylabel("Generation Time (s)")
@@ -120,7 +120,7 @@ def main():
 
     for model in models:
         log_path = f"../output/{model}/log.txt"
-        profile_path = f"./gen_profiles/{model}_gen.prof"
+        profile_path = f"./aux_data/gen_profiles/{model}_gen.prof"
         samples_dir = f"../output/{model}/generations/samples"
         
         params = get_num_params(log_path)

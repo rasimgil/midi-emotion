@@ -2,12 +2,12 @@ import os
 import shutil
 
 def name_to_binary(name):
-    binary_name = ''.join(format(ord(char), '08b') for char in name)
+    binary_name = "".join(format(ord(char), "08b") for char in name)
     return binary_name
 
 def binary_to_name(binary_name):
     characters = [binary_name[i:i+8] for i in range(0, len(binary_name), 8)]
-    original_name = ''.join(chr(int(char, 2)) for char in characters)
+    original_name = "".join(chr(int(char, 2)) for char in characters)
     return original_name
 
 def encrypt_files_in_directory(input_directory, output_directory):
@@ -43,7 +43,7 @@ output_directory_path = "/content/annen"
 def binary_to_string(binary_str):
     binary_values = [binary_str[i:i+8] for i in range(0, len(binary_str), 8)]
     ascii_chars = [chr(int(bv, 2)) for bv in binary_values]
-    return ''.join(ascii_chars)
+    return "".join(ascii_chars)
 
 binary_strings = [
     "0011000100110000010111110100100001001100",

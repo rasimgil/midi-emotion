@@ -3,12 +3,12 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 import os
 
-# input_file = './aux_data/survey.csv'
-# output_file = './aux_data/temp.csv'
+# input_file = "./aux_data/survey.csv"
+# output_file = "./aux_data/temp.csv"
 
 # df = pd.read_csv(input_file, index_col=0)
 
-# df.replace({'High': 'H', 'Low': 'L'}, inplace=True)
+# df.replace({"High": "H", "Low": "L"}, inplace=True)
 
 # df.reset_index(drop=True, inplace=True)
 
@@ -32,8 +32,8 @@ answers = []
 for index, row in df.iterrows():
     for i in range(1, 26):
         score = row[f"Sample {i}"]
-        valence = row[f'Valence for Sample {i}']
-        arousal = row[f'Arousal for Sample {i}']
+        valence = row[f"Valence for Sample {i}"]
+        arousal = row[f"Arousal for Sample {i}"]
         answer = Answer(i, score, arousal, valence)
         answers.append(answer)
 
@@ -42,8 +42,8 @@ answers_n = lambda n: [answer for answer in answers if answer.n == n]
 results = {}
 for i in range(1, 26):
     sample_answers = answers_n(i)
-    valence_counts = {'H': 0, 'L': 0}
-    arousal_counts = {'H': 0, 'L': 0}
+    valence_counts = {"H": 0, "L": 0}
+    arousal_counts = {"H": 0, "L": 0}
     total = len(sample_answers)
     
     for answer in sample_answers:
@@ -54,8 +54,8 @@ for i in range(1, 26):
     arousal_percentage = {key: (val / total) * 100 for key, val in arousal_counts.items()}
     
     results[i] = {
-        'V': valence_percentage,
-        'A': arousal_percentage
+        "V": valence_percentage,
+        "A": arousal_percentage
     }
 
 def get_accuracy(i):
@@ -107,15 +107,15 @@ def plot_accs(models):
     acc_a = [avg_accuracies[m][0] for m in models]
     acc_v = [avg_accuracies[m][1] for m in models]
 
-    base_colors = ['lightcoral', 'yellowgreen', 'cornflowerblue', 'plum', 'khaki']
-    dark_colors = ['darkred', 'darkgreen', 'mediumblue', 'indigo', 'darkkhaki']
+    base_colors = ["lightcoral", "yellowgreen", "cornflowerblue", "plum", "khaki"]
+    dark_colors = ["darkred", "darkgreen", "mediumblue", "indigo", "darkkhaki"]
 
-    _ = ax.bar(x, acc_a, width, label='Arousal Accuracy', color=base_colors)
-    _ = ax.bar([p + width for p in x], acc_v, width, label='Valence Accuracy', color=dark_colors)
+    _ = ax.bar(x, acc_a, width, label="Arousal Accuracy", color=base_colors)
+    _ = ax.bar([p + width for p in x], acc_v, width, label="Valence Accuracy", color=dark_colors)
 
-    ax.set_xlabel('Models')
-    ax.set_ylabel('Percentage')
-    ax.set_title('Average Arousal and Valence Accuracies by Model')
+    ax.set_xlabel("Models")
+    ax.set_ylabel("Percentage")
+    ax.set_title("Average Arousal and Valence Accuracies by Model")
     ax.set_xticks([p + width / 2 for p in x])
     ax.set_xticklabels(models)
     ax.set_ylim(0, 100)
@@ -127,13 +127,13 @@ def plot_votes_histogram(models):
     _, ax = plt.subplots()
 
     hist_data = [get_model_votes(m) for m in models]
-    labels = [f'Model {m}' for m in models]
+    labels = [f"Model {m}" for m in models]
 
-    ax.hist(hist_data, bins=[1, 2, 3, 4, 5, 6], alpha=0.7, label=labels, edgecolor='black')
+    ax.hist(hist_data, bins=[1, 2, 3, 4, 5, 6], alpha=0.7, label=labels, edgecolor="black")
 
-    ax.set_xlabel('Score')
-    ax.set_ylabel('Frequency')
-    ax.set_title('Distribution of Votes by Model')
+    ax.set_xlabel("Score")
+    ax.set_ylabel("Frequency")
+    ax.set_title("Distribution of Votes by Model")
     ax.set_xticks([1, 2, 3, 4, 5])
     ax.legend()
 

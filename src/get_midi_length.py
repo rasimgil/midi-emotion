@@ -136,8 +136,8 @@ def main():
             subdir_path = os.path.join(samples_dir, subdir)
             lengths_dict[subdir] = get_midi_lengths_in_directory(subdir_path)
         
-        plot_histogram(lengths_dict, model, gen_time)
-        plot_kde(lengths_dict, model, gen_time)
+        # plot_histogram(lengths_dict, model, gen_time)
+        # plot_kde(lengths_dict, model, gen_time)
 
     plot_time_vs_params(models, params_dict, time_dict)
 

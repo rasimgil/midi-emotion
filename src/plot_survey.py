@@ -3,31 +3,31 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 import os
 
-# input_file = "./aux_data/survey.csv"
-# output_file = "./aux_data/temp.csv"
+input_file = "./aux_data/survey_answers.csv"
+output_file = "./aux_data/survey_answers_clean.csv"
 
-# df = pd.read_csv(input_file, index_col=0)
+df = pd.read_csv(input_file, index_col=0)
 
-# df.replace({"High": "H", "Low": "L"}, inplace=True)
+df.replace({"High": "H", "Low": "L"}, inplace=True)
 
-# df.reset_index(drop=True, inplace=True)
+df.reset_index(drop=True, inplace=True)
 
-# df.to_csv(output_file, index=False)
+df.to_csv(output_file, index=False)
 
-df = pd.read_csv("./aux_data/temp.csv")
+df = pd.read_csv("./aux_data/survey_answers_clean.csv")
 
 Sample = namedtuple("Sample", ["N", "M", "A", "V"])
 Answer = namedtuple("Answer", ["n", "s", "a", "v"])
 
 samples = []
-with open("./form_ordering.txt") as f:
+with open("./aux_data/form_ordering.txt") as f:
     for line in f:
         n, rest = line.split("- ")
         model, condition = rest.split("_")
         a, v = condition[0], condition[1]
         sample = Sample(n.strip(), model, a, v)
         samples.append(sample)
-
+print(samples)
 answers = []
 for index, row in df.iterrows():
     for i in range(1, 26):
@@ -115,31 +115,30 @@ def plot_accs(models):
 
     ax.set_xlabel("Models")
     ax.set_ylabel("Percentage")
-    ax.set_title("Average Arousal and Valence Accuracies by Model")
+    ax.set_title("Average Arousal and Valence Perceptions by Model")
     ax.set_xticks([p + width / 2 for p in x])
-    ax.set_xticklabels(models)
+    ax.set_xticklabels([r"$M_{1}$", r"$M_{5}$", r"$M_{10}$", r"$M_{46}$", r"CC"])
     ax.set_ylim(0, 100)
     ax.legend()
 
-    plt.savefig(os.path.join("./plots", "accs.png"))
+    plt.savefig(os.path.join("./plots", "perceptions.png"))
 
 def plot_votes_histogram(models):
     _, ax = plt.subplots()
 
     hist_data = [get_model_votes(m) for m in models]
-    labels = [f"Model {m}" for m in models]
+    labels = [r"$M_{1}$", r"$M_{5}$", r"$M_{10}$", r"$M_{46}$", r"CC"]
 
-    ax.hist(hist_data, bins=[1, 2, 3, 4, 5, 6], alpha=0.7, label=labels, edgecolor="black")
+    n, bins, patches = ax.hist(hist_data, bins=[1, 2, 3, 4, 5, 6], alpha=0.7, label=labels, align='mid')
 
-    ax.set_xlabel("Score")
+    ax.set_xlabel("Awkwardness Score")
     ax.set_ylabel("Frequency")
     ax.set_title("Distribution of Votes by Model")
-    ax.set_xticks([1, 2, 3, 4, 5])
+    ax.set_xticks([1.5, 2.5, 3.5, 4.5, 5.5])
+    ax.set_xticklabels([1, 2, 3, 4, 5])
     ax.legend()
 
     plt.savefig(os.path.join("./plots", "votes_histogram.png"))
 
 if __name__ == "__main__":
     models = ["1", "5", "10", "46", "CC"]
-    plot_accs(models)
-    plot_votes_histogram(models)
